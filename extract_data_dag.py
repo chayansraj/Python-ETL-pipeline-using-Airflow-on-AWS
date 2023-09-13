@@ -61,11 +61,40 @@ def transform_load_data(task_instance):
     transformed_data_list = [transformed_data]
     df_weather = pd.DataFrame(transformed_data_list)
 
-    # now = datetime.now()
-    # dt_string = now.strftime("%d%m%Y%H%M%S")
-    # dt_string = 'current_weather_data_stockholm' + dt_string
-    df_weather.to_csv("current_weather_data_stockholm.csv", index=False)
+    aws_credentials = {"key": <access key>, "secret": <secret key>,
+                         "token": <session token>}
+	
+
+    now = datetime.now()
+    dt_string = now.strftime("%d%m%Y%H%M%S")
+    dt_string = 'current_weather_data_stockholm' + dt_string
+    df_weather.to_csv(f"s3://<s3 bucket name>/{dt_string}.csv", index=False)
 
 
+with DAG("weather_dag",
+         default_args = default_args,
+         schedule_interval= "@hourly",
+         catchup=False,) as dag:
+    
 
+        is_weather_api_available = HttpSensor(
+            task_id = "is_weather_api_available",
+            endpoint = "data/2.5/weather?q=Stockholm&appid=8d2a39daa31380c07c5716d4b8c88705",
+            http_conn_id='weather_map_api')
+
+        extract_weather_data = SimpleHttpOperator(
+            task_id = "extract_weather_data",
+            http_conn_id="weather_map_api",
+            endpoint = "data/2.5/weather?q=Stockholm&appid=8d2a39daa31380c07c5716d4b8c88705",
+            method= "GET",
+            response_filter = lambda r:json.loads(r.text),
+            log_response = True,
+        )
+
+        transform_load_weather_data = PythonOperator(
+            task_id = "transform_load_weather_data",
+            python_callable= transform_load_data,
+        )
+
+        is_weather_api_available >> extract_weather_data >> transform_load_weather_data
 
