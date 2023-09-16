@@ -103,8 +103,48 @@ Airflow has four core components that are important for its function:
 2. Airflow scheduler - A Daemon responsible for scheduling jobs. This is a multi-threaded Python process that determines what tasks need to be run, when they need to be run, and where they run.
 3. Airflow database - A database where all DAG and task metadata are stored. This is typically a Postgres database, but MySQL, MsSQL, and SQLite are also supported.
 4. Airflow executor - The mechanism for running tasks. An executor is running within the scheduler whenever Airflow is operational.
- 
 
+An airflow UI is generated when the webserver is up and running with some pre-defined DAGs as shown below:
+
+<p align="center">
+  <img  height="500" src="https://github.com/chayansraj/Python-ETL-pipeline-using-Airflow-on-AWS/assets/22219089/b85b7b02-deed-4dc3-93e5-a373e79d74a2">
+  <h6 align = "center" > Source: Author </h6>
+</p>
+
+
+
+
+* **Step 2** - In order for airflow to make API calls to open weather, there needs to be a connection between two services which can be done using 'connections' tab in airflow. This will allow airflow to access openweather map using HTTP operator.
+
+<p align="center">
+  <img  height="500" src="https://github.com/chayansraj/Python-ETL-pipeline-using-Airflow-on-AWS/assets/22219089/55509511-414a-438a-9612-5b9168a7ec23">
+  <h6 align = "center" > Source: Author </h6>
+</p>
+
+* **Step 3** - It is time to create our first DAG (Directed Acyclic Graph) with proper imports and dependencies. This step is subdivided into three steps each accounting for a task within our DAG.
+  * Step 3.1 - Create dag file for example weather_dag.py and add the required updates
+      ```Pyhton
+      from airflow import DAG
+      from datetime import timedelta, datetime
+      from airflow.providers.http.sensors.http import HttpSensor
+      from airflow.providers.http.operators.http import SimpleHttpOperator
+      from airflow.operators.python_operator import PythonOperator
+      import pandas as pd
+      import json
+      ``` 
+      Every DAG has some default arguments needed to run tasks according to the settings, you can set the default_args as following:
+      ```Python
+      default_args = {
+    "owner":"airflow",
+    "depends_on_past": False,
+    "start_date": datetime(2023,1,1),
+    "email": ['myemail@domain.com'],
+    "email_on_failure": True,
+    "email_on_retry": False,
+    "retries": 2,
+    "retry_delay": timedelta(minutes=3),
+}
+      ```
 
 
 
