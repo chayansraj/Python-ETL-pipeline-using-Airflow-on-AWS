@@ -121,8 +121,8 @@ An airflow UI is generated when the webserver is up and running with some pre-de
   <h6 align = "center" > Source: Author </h6>
 </p>
 
-* **Step 3** - It is time to create our first DAG (Directed Acyclic Graph) with proper imports and dependencies. This step is subdivided into three steps each accounting for a task within our DAG.
-  * Step 3.1 - Create dag file for example weather_dag.py and add the required updates
+* **Step 3** - It is time to create our first DAG (Directed Acyclic Graph) with proper imports and dependencies. This step is subdivided into three steps each accounting for a task within our DAG. Create dag file for example weather_dag.py and add the required import and libraries:
+  
       ```Pyhton
       from airflow import DAG
       from datetime import timedelta, datetime
@@ -135,17 +135,72 @@ An airflow UI is generated when the webserver is up and running with some pre-de
       Every DAG has some default arguments needed to run tasks according to the settings, you can set the default_args as following:
       ```Python
       default_args = {
-    "owner":"airflow",
-    "depends_on_past": False,
-    "start_date": datetime(2023,1,1),
-    "email": ['myemail@domain.com'],
-    "email_on_failure": True,
-    "email_on_retry": False,
-    "retries": 2,
-    "retry_delay": timedelta(minutes=3),
-}
+      "owner":"airflow",
+      "depends_on_past": False,
+      "start_date": datetime(2023,1,1),
+      "email": ['myemail@domain.com'],
+      "email_on_failure": True,
+      "email_on_retry": False,
+      "retries": 2,
+      "retry_delay": timedelta(minutes=3),}
       ```
+     * **Task 1** - Tasks are written inside the DAGs using operators. Here, we use the *HTTPSensor* Operator to check if the API is callable or not. You use your API key and choose any city in which you are interested.
+      
+      ```Python
+      with DAG("weather_dag",
+         default_args = default_args,
+         schedule_interval= "@hourly",
+         catchup=False,) as dag:
+    
+
+        is_weather_api_available = HttpSensor(
+            task_id = "is_weather_api_available",
+            endpoint = "data/2.5/weather?q=Stockholm&appid=<API Key>",
+            http_conn_id='weather_map_api')
+      
+      ```
+  
+      * **Task 2** - This task calls the weather API and invokes a GET method to get the data in json format. We use a lambda function to convert the load into a text.
+
+      ```Python
+      extract_weather_data = SimpleHttpOperator(
+            task_id = "extract_weather_data",
+            http_conn_id="weather_map_api",
+            endpoint = "data/2.5/weather?q=Stockholm&appid=8d2a39daa31380c07c5716d4b8c88705",
+            method= "GET",
+            response_filter = lambda r:json.loads(r.text),
+            log_response = True,
+        )
+      ```
+      * **Task 3** - This task calls a python function that transforms the json format into csv file and store it in AWS S3 buckets. You can define the schedule intervals in which you want to execute your DAG, based on default_args.
+
+      ```Python
+      transform_load_weather_data = PythonOperator(
+            task_id = "transform_load_weather_data",
+            python_callable= transform_load_data,
+        )
+      ```
+  After implementing above step, if we go over Airflow UI, we can see the tasks inside DAG, the directed chain is achieved by adding tasks ordering at the end of the DAG.
+ <h4 align ='center' >   is_weather_api_available >> extract_weather_data >> transform_load_weather_data </h4>
+  
+<p align="center">
+  <img  height="500" src="https://github.com/chayansraj/Python-ETL-pipeline-using-Airflow-on-AWS/assets/22219089/1e3c5466-256f-47ed-a926-5cb69c0f2663">
+  <h6 align = "center" > Source: Author </h6>
+</p>
+
+* **Step 4** - We can write the tranform function and give appropriate permissions to airflow for using AWS S3 and proper session credentials. For every transaction, AWS creates a session window that allows a service to interact with AWS components.
+
+<p align="center">
+  <img  height="600" src="https://github.com/chayansraj/Python-ETL-pipeline-using-Airflow-on-AWS/assets/22219089/d142838b-1643-4498-b952-56c35fd89569">
+  <h6 align = "center" > Source: Author </h6>
+</p>  
+
+
+* **Step 5** - Now, we can see that, we have csv files stored in AWS S3 buckets using data pipeline that we just created.
+<p align="center">
+  <img  height="600" src="https://github.com/chayansraj/Python-ETL-pipeline-using-Airflow-on-AWS/assets/22219089/d9ab4360-badf-49fc-be86-eddf0f6ceb57">
+  <h6 align = "center" > Source: Author </h6>
+</p>  
 
 
 
-TBC...
