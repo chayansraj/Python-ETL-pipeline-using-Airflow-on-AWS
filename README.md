@@ -162,19 +162,22 @@ An airflow UI is generated when the webserver is up and running with some pre-de
       
       ```
   
-      * **Task 2** - This task calls the weather API and invokes a GET method to get the data in json format. We use a lambda function to convert the load into a text.
+  * **Task 2** - This task calls the weather API and invokes a GET method to get the data in json format. We use a lambda function to convert the load into a text.
+
 
       ```Python
       extract_weather_data = SimpleHttpOperator(
             task_id = "extract_weather_data",
             http_conn_id="weather_map_api",
-            endpoint = "data/2.5/weather?q=Stockholm&appid=8d2a39daa31380c07c5716d4b8c88705",
+            endpoint = "data/2.5/weather?q=Stockholm&appid=<API Key>",
             method= "GET",
             response_filter = lambda r:json.loads(r.text),
             log_response = True,
         )
       ```
-      * **Task 3** - This task calls a python function that transforms the json format into csv file and store it in AWS S3 buckets. You can define the schedule intervals in which you want to execute your DAG, based on default_args.
+
+  * **Task 3** - This task calls a python function that transforms the json format into csv file and store it in AWS S3 buckets. You can define the schedule intervals in which you want to execute your DAG, based on default_args.
+
 
       ```Python
       transform_load_weather_data = PythonOperator(
@@ -182,7 +185,7 @@ An airflow UI is generated when the webserver is up and running with some pre-de
             python_callable= transform_load_data,
         )
       ```
-  After implementing above step, if we go over Airflow UI, we can see the tasks inside DAG, the directed chain is achieved by adding tasks ordering at the end of the DAG.
+  After implementing above step, if we go over to Airflow UI, we can see the tasks inside DAG, the directed chain is achieved by adding tasks ordering at the end of the DAG.
  <h4 align ='center' >   is_weather_api_available >> extract_weather_data >> transform_load_weather_data </h4>
   
 <p align="center">
