@@ -12,8 +12,6 @@ This project demonstrates how to build and automate an ETL pipeline written in P
 5. Pipeline Automation - Create scheduling service using Apace Airflow to trigger the data pipeline and automate the process.
 
 
-
-
 # Data Architecture
 
 The architecture (Data flow) used in this project uses different Open source and cloud components as described below:
