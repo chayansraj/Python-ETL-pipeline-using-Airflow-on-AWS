@@ -14,6 +14,7 @@ This project demonstrates how to build and automate an ETL pipeline written in P
 
 
 
+
 # Data Architecture
 
 The architecture (Data flow) used in this project uses different Open source and cloud components as described below:
