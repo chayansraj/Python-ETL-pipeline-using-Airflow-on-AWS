@@ -3,8 +3,6 @@ This project demonstrates how to build and automate an ETL pipeline written in P
 
 
 
-
-
 # Project Goals 
 
 1. Data Ingestion - Create a data ingestion pipeline to extract data from OpenWeather API.
@@ -12,8 +10,6 @@ This project demonstrates how to build and automate an ETL pipeline written in P
 3. Data Transformation - Create ETL job to extract the data, do simple transformations and load the clean data using Airflow.
 4. Data Pipeline - Create a data pipeline written in Python that extracts data from API calls and store it in AWS S3 buckets.
 5. Pipeline Automation - Create scheduling service using Apace Airflow to trigger the data pipeline and automate the process.
-
-
 
 
 # Data Architecture
