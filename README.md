@@ -2,6 +2,8 @@
 This project demonstrates how to build and automate an ETL pipeline written in Python and schedule it using open source Apache Airflow orchestration tool on AWS EC2 instance.
 
 
+
+
 # Project Goals 
 1. Data Ingestion - Create a data ingestion pipeline to extract data from OpenWeather API.
 2. Data Storage - Create a data storage repository using AWS S3 buckets.
